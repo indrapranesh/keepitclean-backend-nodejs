@@ -1,0 +1,299 @@
+Description: Keep it clean application infrastructure
+
+Parameters:
+  stage:
+    Type: String
+    Default: "dev"
+    AllowedValues:
+      - "dev"
+      - "qa"
+      - "prod"
+  DatabaseName:
+    Type: String
+    Default: database_master
+  EngineVersion:
+    Type: String
+    Default: "5.6"
+  stackPrefix:
+    Type: String
+    Description: The prefix to use when naming resources in this stack. Normally we would use the stack name, but since this template can be used as a resource in other stacks we want to keep the naming consistent. No symbols allowed.
+    ConstraintDescription: Alphanumeric characters only, maximum 10 characters
+    MaxLength: 20
+
+  # Cloud Front
+  IPV6Enabled:
+    Description:    Should CloudFront to respond to IPv6 DNS requests with an IPv6 address for your distribution.
+    Type:           String
+    Default:        "true"
+    AllowedValues:
+      - true
+      - false
+
+  Compress:
+    Description:    CloudFront Origin Protocol Policy to apply to your origin.
+    Type:           String
+    Default:        "false"
+    AllowedValues:
+      - true
+      - false
+
+  DefaultTTL:
+    Description:    The default time in seconds that objects stay in CloudFront caches before CloudFront forwards another request to your custom origin. By default, AWS CloudFormation specifies 86400 seconds (one day).
+    Type:           String
+    Default:        "0"
+
+  MaxTTL:
+    Description:    The maximum time in seconds that objects stay in CloudFront caches before CloudFront forwards another request to your custom origin. By default, AWS CloudFormation specifies 31536000 seconds (one year).
+    Type:           String
+    Default:        "0"
+
+  MinTTL:
+    Description:    The minimum amount of time that you want objects to stay in the cache before CloudFront queries your origin to see whether the object has been updated.
+    Type:           String
+    Default:        "0"
+
+  SmoothStreaming:
+    Description:    Indicates whether to use the origin that is associated with this cache behavior to distribute media files in the Microsoft Smooth Streaming format.
+    Type:           String
+    Default:        "false"
+    AllowedValues:
+      - true
+      - false
+
+  QueryString:
+    Description:    CIndicates whether you want CloudFront to forward query strings to the origin that is associated with this cache behavior.
+    Type:           String
+    Default:        "true"
+    AllowedValues:
+      - true
+      - false
+
+  ForwardCookies:
+    Description:    Forwards specified cookies to the origin of the cache behavior.
+    Type:           String
+    Default:        "all"
+    AllowedValues:
+      - all
+      - whitelist
+      - none
+
+  ViewerProtocolPolicy:
+    Description:    The protocol that users can use to access the files in the origin that you specified in the TargetOriginId property when the default cache behavior is applied to a request.
+    Type:           String
+    Default:        "redirect-to-https"
+    AllowedValues:
+      - redirect-to-https
+      - allow-all
+      - https-only
+
+  PriceClass:
+    Description:    The price class that corresponds with the maximum price that you want to pay for CloudFront service. If you specify PriceClass_All, CloudFront responds to requests for your objects from all CloudFront edge locations.
+    Type:           String
+    Default:        "PriceClass_All"
+    AllowedValues:
+      - PriceClass_All
+      - PriceClass_100
+      - PriceClass_200
+
+  OriginBucketVersioning:
+    Description:    The versioning state of an Amazon S3 bucket. If you enable versioning, you must suspend versioning to disable it.
+    Type:           String
+    Default:        "Suspended"
+    AllowedValues:
+      - Enabled
+      - Suspended
+
+  GeoRestrictionType:
+    Description:    Geo Restriction Type
+    Type:           String
+    Default:        "none"
+    AllowedValues:
+      - none
+      - whitelist
+      - blacklist
+
+  DistributionDefaultRootObject:
+    Description:    CloudFront Distribution Default Root Object
+    Type:           String
+    Default:        "index.html"
+
+  Response404PagePath:
+    Description:    404 Error Response Page Path
+    Type:           String
+    Default:        "/index.html"
+
+  Response403PagePath:
+    Description:    403 Error Response Page Path
+    Type:           String
+    Default:        "/index.html"
+
+  ErrorCachingMinTTL:
+    Description:    403 and 404 Error Caching Min TTL
+    Type:           String
+    Default:        "60"
+  
+  branchName:
+    Type: String
+    Default: "dev"
+    AllowedValues:
+      - "dev"
+      - "qa"
+      - "uat"
+      - "master"
+
+Mappings:
+
+  DBInstanceClass:
+    dev: 
+      type: db.t2.micro
+    # qa: 
+    #   type: db.t3.small
+    # prod:
+    #   type: db.t3.large
+
+  RDSAllocatedStorage:
+    dev: 
+      size: 5
+    qa: 
+      size: 5
+    prod:
+      size: 100
+
+  RegionAndEnvironment2AZ:
+    us-east-1:
+      dev:
+        - us-east-1a
+        - us-east-1b
+        - us-east-1c
+      qa:
+        - us-east-1a
+        - us-east-1b
+        - us-east-1c
+      prod:
+        - us-east-1a
+        - us-east-1b
+        - us-east-1c
+
+    us-east-2:
+      dev:
+        - us-east-2a
+        - us-east-2b
+        - us-east-2c
+      qa:
+        - us-east-2a
+        - us-east-2b
+        - us-east-2c
+      prod:
+        - us-east-2a
+        - us-east-2b
+        - us-east-2c
+
+    us-west-1:
+      dev:
+        - us-west-1b
+        - us-west-1c
+      qa:
+        - us-west-1b
+        - us-west-1c
+      prod:
+        - us-west-1b
+        - us-west-1c
+
+    us-west-2:
+      dev:
+        - us-west-2a
+        - us-west-2b
+        - us-west-2c
+      qa:
+        - us-west-2a
+        - us-west-2b
+        - us-west-2c
+      prod:
+        - us-west-2a
+        - us-west-2b
+        - us-west-2c
+
+Resources:
+  RdsInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: !Sub '${stackPrefix}-${stage}-rds-instance'
+        - Key: "owner"
+          Value: "indrapranesh"
+        - Key: "environment"
+          Value: !Ref stage
+        - Key: "workload"
+          Value: "keep-it-clean"
+
+      DBInstanceIdentifier: !Sub
+                  - ${stackPrefix}-${stage}-db
+                  - stackPrefix: !Ref stackPrefix
+                    stage: !Ref stage
+      DBName: !Ref DatabaseName
+      AllocatedStorage: !FindInMap [ RDSAllocatedStorage, !Ref stage, size]
+      DBInstanceClass: !FindInMap [ DBInstanceClass, !Ref stage, type]
+      Engine: mysql
+      EngineVersion: !Ref EngineVersion
+      MasterUsername: 'db_user'
+      MasterUserPassword: 'testpass'
+      BackupRetentionPeriod: 30
+      DeletionProtection: false
+      PubliclyAccessible: true
+
+  OriginBucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: 'Retain'
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: !Sub '${stackPrefix}-${stage}-origin-bucket'
+        - Key: "owner"
+          Value: "indrapranesh"
+        - Key: "environment"
+          Value: !Ref stage
+        - Key: "workload"
+          Value: "keep-it-clean"
+        - Key: public-access
+          Value: blocked
+        - Key: logging
+          Value: disabled
+        - Key: versioning
+          Value: disabled
+
+      BucketName: !Sub '${stackPrefix}-${stage}-origin-bucket'
+      VersioningConfiguration:
+        Status: !Ref 'OriginBucketVersioning'
+      WebsiteConfiguration:
+        IndexDocument: !Sub 'index.html'
+        ErrorDocument: !Sub 'index.html'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  
+  # Origin S3 Bucket Policy
+  OriginS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket:           !Ref OriginBucket
+      PolicyDocument:
+        Statement:
+          - Sid:        !Sub 'PublicReadGetObject'
+            Effect:     Allow
+            Principal:  '*'
+            Action:     's3:GetObject'
+            Resource:   !Sub 'arn:aws:s3:::${stackPrefix}-${stage}-origin-bucket/*'
+
+Outputs:
+  RDSHost:
+    Value: !GetAtt 
+              - RdsInstance
+              - Endpoint.Address
+    Export:
+      Name: !Sub ${stackPrefix}-${stage}-RDSHost
+  OriginBucket:
+    Description: "Name of S3 Origin bucket"
+    Value:       !Ref 'OriginBucket'
