@@ -1,6 +1,5 @@
 service: 
   name: keepitclean-backend-nodejs
-frameworkVersion: '2'
 
 plugins:
   - serverless-webpack
