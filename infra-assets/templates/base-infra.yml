@@ -287,6 +287,46 @@ Resources:
             Action:     's3:GetObject'
             Resource:   !Sub 'arn:aws:s3:::${stackPrefix}-${stage}-origin-bucket/*'
 
+  UserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: !Sub ${stackPrefix}-${stage}-userpool
+      AutoVerifiedAttributes:
+        - email
+      MfaConfiguration: "OFF"
+      Schema:
+        - Name: first_name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+        - Name: last_name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+        - Name: user_name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: false
+          Required: false
+        - Name: role
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+
+  UserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      ClientName: !Sub ${stackPrefix}-client
+      GenerateSecret: false
+      UserPoolId: !Ref UserPool
+
 Outputs:
   RDSHost:
     Value: !GetAtt 
@@ -297,3 +337,12 @@ Outputs:
   OriginBucket:
     Description: "Name of S3 Origin bucket"
     Value:       !Ref 'OriginBucket'
+  UserPoolId:
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  UserPoolArn:
+    Value:
+      Fn::GetAtt:
+        - UserPool
+        - Arn

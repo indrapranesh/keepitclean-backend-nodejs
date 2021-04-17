@@ -25,8 +25,8 @@ provider:
     DATABASE: database_master
     DB_USERNAME: db_user
     DB_PASSWORD: testpass
-    USER_POOLID: ${cf:${self:service.name}.UserPoolId}
-    CLIENT_ID: ${cf:${self:service.name}.UserPoolClientId}
+    USER_POOLID: ${cf:${self:custom.baseStack}.UserPoolId}
+    CLIENT_ID: ${cf:${self:custom.baseStack}.UserPoolClientId}
 
 functions:
   
@@ -38,3 +38,6 @@ functions:
           method: post
           cors: true
           integration: lambda
+
+resources:
+  - ${file(./serverless-assets/serverless-template.yml)}
