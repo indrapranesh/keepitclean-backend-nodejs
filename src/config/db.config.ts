@@ -3,6 +3,8 @@ import { Logger } from "../utils/logger.utils";
 import { Session } from "../namespaces/session.namespace";
 import { SESSION_VARIABLES } from "../constants/aws.constants";
 import { User } from "../models/user.model";
+import { ENV_CONSTANTS } from "../constants/env.constants";
+import ENVUtils from "../utils/env.utils";
 
 export class DbConfig {
     private static sequelize: Sequelize = null;
@@ -27,10 +29,10 @@ export class DbConfig {
     public static async init() {
         // let dbSecrets = await DBManager.getSecrets();
         // dbSecrets = JSON.parse(dbSecrets);
-        const host = 'localhost'
-        , database = 'ar_op_master'
-        , username = 'root'
-        , password = 'testpass'
+        const host = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.HOST)
+        , database = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.DB_NAME)
+        , username = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.USERNAME)
+        , password = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.PASSWORD)
             , port = 3306
 
         this.sequelize = new Sequelize({
