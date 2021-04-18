@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import { Logger } from "../utils/logger.utils";
 import { Session } from "../namespaces/session.namespace";
 import { SESSION_VARIABLES } from "../constants/aws.constants";
+import { User } from "../models/user.model";
 
 export class DbConfig {
     private static sequelize: Sequelize = null;
@@ -53,14 +54,7 @@ export class DbConfig {
     public static registerModels() {
         Logger.debug('Entering <registerModels>');
         this.sequelize.addModels([
-           User,
-           UserRole,
-           Marker,
-           MarkerImage,
-           Realm,
-           MarkerVideo,
-           ModelDetails,
-           UserRealmMapper
+           User
         ])
     }
 }

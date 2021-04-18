@@ -36,10 +36,6 @@ export class Cognito {
               Value: user.phoneNumber
             },
             {
-              Name: 'custom:role',
-              Value: `${user.role}`
-            },
-            {
               Name: 'email',
               Value: `${user.email}`
             },
@@ -61,10 +57,6 @@ export class Cognito {
             {
               Name: 'phone_number',
               Value: user.phoneNumber
-            },
-            {
-              Name: 'custom:role',
-              Value: `${user.role}`
             },
             {
               Name: 'email',

@@ -1,6 +1,6 @@
 import { Session } from "../namespaces/session.namespace";
 import { Sequelize } from "sequelize-typescript";
-import { SESSION_VARIABLES } from "../constants/session.constants";
+import { SESSION_VARIABLES } from "../constants/aws.constants";
 import { Logger } from '../utils/logger.utils';
 import { Transaction } from "sequelize";
 
