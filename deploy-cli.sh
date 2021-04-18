@@ -8,5 +8,6 @@ export need_repo='true'
 sudo apt update -y && sudo apt install jq -y
 npm i -g serverless
 npm i
+chmod +x deploy.sh
 chmod +x infra-assets/scripts/deploy-base-infra.sh
 ./deploy.sh

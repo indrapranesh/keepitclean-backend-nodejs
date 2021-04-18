@@ -6,6 +6,7 @@ BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 db_user='db_user'
 db_pass='testpass'
+BACK_SRC_URL="https://github.com/indrapranesh/keepitclean-backend-nodejs.git"
 
 function fail(){
     echo -e "${RED}Failure: $* ${NC}"
@@ -45,16 +46,26 @@ function check_jq() {
 function deploy_serverless() {
     info "deploying serverless for stack ${STACK_NAME}..."
     navigate_to_serverless_directory
-    sls deploy --stage ${stage} --region ${region} --stackPrefix ${app_prefix} --db_user ${db_user} --db_pass ${db_pass}
+    sls deploy --stage ${stage} --region ${region} --stackPrefix ${app_prefix} --db_user ${db_user} --db_pass ${db_pass} --vpc_stack ${vpc_stack}
     success "Successfully deployed serverless stack"
-    sls migrations up --stage ${stage} --region ${region} --stackPrefix ${app_prefix} --db_user ${db_user} --db_pass ${db_pass}
+    sls migrations up --stage ${stage} --region ${region} --stackPrefix ${app_prefix} --db_user ${db_user} --db_pass ${db_pass} --vpc_stack ${vpc_stack}
 }
 
 deploy_base_infra() {
     info "deploying stack ${STACK_NAME}..."
 
+    if [ ${stage} == "dev" ]; then
+        ip_range="102."
+        elif [ ${stage} == "qa" ]; then
+        ip_range="192."
+        elif [ ${stage} == "prod" ]; then
+        ip_range="172."
+    fi
+    info "ip range ${ip_range}"
+
     aws cloudformation deploy --region ${region} --capabilities CAPABILITY_NAMED_IAM --template-file ./templates/base-infra.yml --stack-name $STACK_NAME \
-    --parameter-overrides stage=${stage} stackPrefix=${app_prefix} MasterUsername=${db_user} MasterUserPassword=${db_pass}
+    --parameter-overrides stage=${stage} stackPrefix=${app_prefix} MasterUsername=${db_user} MasterUserPassword=${db_pass} backendSrcUrl=${BACK_SRC_URL} \
+    IpRange=${ip_range} BastionKeyName="${app_prefix}-${stage}"
 
     success "Successfully deployed base stack"
 
