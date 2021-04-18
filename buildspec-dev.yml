@@ -21,7 +21,6 @@ phases:
       - npm i
       - chmod +x deploy.sh
       - chmod +x infra-assets/scripts/deploy-base-infra.sh
-      - chmod +x infra-assets/model-training/build.sh
   post_build:
     commands:
       - ./deploy.sh
