@@ -40,7 +40,13 @@ export class Event extends Model<Event> {
     name: string;
 
     @Column(DataType.STRING)
+    description: string;
+
+    @Column(DataType.STRING)
     address: string;
+
+    @Column(DataType.STRING)
+    city: string;
 
     @Column(DataType.STRING)
     zipcode: string;
@@ -50,6 +56,9 @@ export class Event extends Model<Event> {
 
     @Column(DataType.STRING)
     longitude: string;
+
+    @Column(DataType.STRING)
+    imageUrl: string;
     
     @Column(DataType.DATE)
     createdAt: Date;

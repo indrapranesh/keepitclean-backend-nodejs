@@ -8,4 +8,4 @@ Resources:
       RestApiId:
         Ref: ApiGatewayRestApi
       ProviderARNs: 
-        - ${cf:${self:custom.baseStack}.UserPoolArn}
+        - #${cf:${self:custom.baseStack}.UserPoolArn}

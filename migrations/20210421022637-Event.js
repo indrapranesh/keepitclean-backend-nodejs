@@ -25,8 +25,14 @@ module.exports = {
         name: {
             type: Sequelize.STRING
         },
+        description: {
+          type: Sequelize.STRING
+        },
         address: {
             type: Sequelize.STRING
+        },
+        city: {
+          type: Sequelize.STRING
         },
         zipcode: {
           type: Sequelize.STRING
@@ -36,6 +42,12 @@ module.exports = {
         },
         longitude: {
             type: Sequelize.STRING
+        },
+        imageUrl: {
+          type: Sequelize.STRING
+        },
+        isDeleted: {
+          type: Sequelize.BOOLEAN
         },
         createdAt: {
             allowNull: false,

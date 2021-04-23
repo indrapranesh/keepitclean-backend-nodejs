@@ -57,6 +57,9 @@ export class UserAddress extends Model<UserAddress> {
     @Column(DataType.STRING)
     address: string;
 
+    @Column(DataType.STRING)
+    city: string;
+
     @Column(DataType.INTEGER)
     zipcode: number;
 
