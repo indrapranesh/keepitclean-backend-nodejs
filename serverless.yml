@@ -49,6 +49,8 @@ provider:
     CLIENT_ID: ${cf:${self:custom.baseStack}.UserPoolClientId}
 
 functions:
+
+  # User API
   
   create: 
     handler: src/api/user.create
@@ -58,6 +60,139 @@ functions:
           method: post
           cors: true
           integration: lambda
+        
+  getAllUsers: 
+    handler: src/api/user.getAllUsers
+    events:
+      - http:
+          path: api/users
+          method: get
+          cors: true
+          integration: lambda
 
+  getUserById: 
+    handler: src/api/user.getUserById
+    events:
+      - http:
+          path: api/user/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+
+  # Session API
+
+  login:
+    handler: src/api/session.login
+    events:
+      - http:
+          path: api/login
+          method: post
+          integration: lambda
+
+  signUp:
+    handler: src/api/session.signUp
+    events:
+      - http:
+          path: api/signup
+          method: post
+          integration: lambda
+
+  changePassword:
+    handler: src/api/session.changePassword
+    events:
+      - http:
+          path: api/password/change
+          method: post
+          integration: lambda
+
+  verifyUser:
+    handler: src/api/session.verifyUser
+    events:
+      - http:
+          path: api/user/verify
+          method: post
+          integration: lambda
+  
+  refreshSession:
+    handler: src/api/session.refreshSession
+    events:
+      - http:
+          path: api/user/verify
+          method: post
+          integration: lambda
+
+  forgetPassword:
+    handler: src/api/session.forgetPassword
+    events:
+      - http:
+          path: api/password/forget
+          method: post
+          integration: lambda
+
+  confirmForgotPassword:
+    handler: src/api/session.confirmForgotPassword
+    events:
+      - http:
+          path: api/password/reset
+          method: post
+          integration: lambda
+
+
+  # Event API
+
+  createEvent:
+    handler: src/api/event.createEvent
+    events:
+      - http:
+          path: api/event
+          method: post
+          cors: true
+          integration: lambda
+
+  getAllEvents:
+    handler: src/api/event.getAllEvents
+    events:
+      - http:
+          path: api/events
+          method: get
+          cors: true
+          integration: lambda
+
+  getEventById:
+    handler: src/api/event.getEventById
+    events:
+      - http:
+          path: api/event/{eventId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getHostedEventsByUser:
+    handler: src/api/event.getHostedEventsByUser
+    events:
+      - http:
+          path: api/event/host/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getJoinedEventsByUser:
+    handler: src/api/event.getJoinedEventsByUser
+    events:
+      - http:
+          path: api/event/join/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  deleteEvent:
+    handler: src/api/event.deleteEvent
+    events:
+      - http:
+          path: api/event/{eventId}
+          method: delete
+          cors: true
+          integration: lambda
 resources:
   - ${file(./serverless-assets/serverless-template.yml)}
