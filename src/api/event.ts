@@ -13,16 +13,42 @@ class EventApi {
                 if (Extensions.isEmpty(event.body)) {
                     throw new BusinessException('Event data cannot be empty');
                 }
-                if (!event.path && ! event.path.userId) {
-                    throw new NotFoundException('Missing userId in event path params');
-                }
-                const userId = event.path.userId;
-                const response = await EventService.createEvent(event.body, userId);
+                const response = await EventService.createEvent(event.body);
                 Logger.info('Resolving promise from <EventApi.create>', response);
                 resolve(response);
             } catch (error) {
                 Logger.error(error);
                 Logger.info('Rejecting promise from <EventApi.create>');
+                reject(error);
+            }
+        });
+    }
+
+    static joinEvent(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (Extensions.isEmpty(event.body)) {
+                    throw new BusinessException('Event data cannot be empty');
+                }
+                const response = await EventService.joinEvent(event.body);
+                resolve(response)
+            } catch (error) {
+                Logger.error(error);
+                reject(error);
+            }
+        })
+    }
+
+    static getEventTypes(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                Logger.info(`Entering <EventApi.getEventTypes> with ${event.query}`);
+                const result = await EventService.getEventTypes();
+                Logger.info(`Resolving promise from <EventApi.getEventTypes> with ${result}`);
+                resolve(result);
+            } catch (error) {
+                Logger.error(error);
+                Logger.info('Rejecting promise from <EventApi.getEventTypes>');
                 reject(error);
             }
         });
@@ -130,3 +156,5 @@ export const getEventById = EventApi.getEventById;
 export const getHostedEventsByUser = EventApi.getHostedEventsByUser;
 export const getJoinedEventsByUser = EventApi.getJoinedEventsByUser;
 export const deleteEvent = EventApi.deleteEvent;
+export const getEventTypes = EventApi.getEventTypes;
+export const joinEvent = EventApi.joinEvent;

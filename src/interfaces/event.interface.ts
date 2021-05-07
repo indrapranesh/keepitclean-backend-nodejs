@@ -4,8 +4,15 @@ export interface EventReq {
     name: string;
     description: string;
     address: string;
-    city: string;
-    zipcode: number;
     latitude: string;
     longitude: string;
+    startTime: string;
+    endTime: string;
+    phoneNumber: string;
+}
+
+export interface JoinReq {
+    userId: number;
+    eventId: number;
+    status: number;
 }

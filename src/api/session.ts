@@ -40,13 +40,7 @@ class SessionApi {
                 if (Extensions.isEmpty(event.body)) {
                     throw new userBusinessException.BusinessExceptionEmptyUserId('User data cannot be empty');
                 }
-                if (Extensions.isUndefined(event.body.userData)) {
-                    throw new userBusinessException.BusinessExceptionInvalidUserData('Invalid user data');
-                }
-                if (!Extensions.validateUsername(event.body.userData.firstName)) {
-                    throw new userBusinessException.BusinessExceptionInvalidUserName('Invalid user name');
-                }
-                const response = await SessionService.signUp(event.body.userData);
+                const response = await SessionService.signUp(event.body);
                 Logger.info('Resolving promise from <UsersApi.create>', response);
                 resolve(response);
             } catch (error) {

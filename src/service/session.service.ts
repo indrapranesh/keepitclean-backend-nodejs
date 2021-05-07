@@ -2,14 +2,12 @@ import { ResponseObject } from "../models/response.model";
 import { Cognito } from "../integrations/cognito.integrations";
 import { IConfirmPassword, ILoginReq, ILoginRes, IRefreshSessionReq, ISignupReq } from "../interfaces/request.interface";
 import { Logger } from "../utils/logger.utils";
-import * as uuid from "uuid";
 import { MESSAGE } from "../constants/error.constants";
 import { SessionBusinessException } from "../exceptions/business-exceptions/session.business.exception";
 import { getTransaction } from "../utils/db.utilts";
 import { User } from "../models/user.model";
 import { NotFoundException } from "../exceptions/not-found.exception";
 import { DbConfig } from "../config/db.config";
-import { Extensions } from "../utils/extensions";
 
 export class SessionService {
     static login(req: ILoginReq) {
@@ -82,15 +80,17 @@ export class SessionService {
                     email: user.email,
                     userName: user.userName,
                     phoneNumber: user.phoneNumber,
-                    password: Extensions.generatePassword(),
-                    cognitoUserName: `${user.firstName.replace(/\s/g, '').toLowerCase().slice(0, 3)}${Date.now()}${uuid.v4()}`,
+                    password: user.password,
+                    cognitoUserName: user.userName,
                     code: '',
                     isFirstLogin: true
                 } 
                 await Cognito.addUser(signupReq);
                 let result = await User.create(signupReq, {transaction: trans});
+                trans.commit();
                 resolve(new ResponseObject(200, "User created successfully", result, null));
             } catch (error) {
+                trans.rollback();
                 Logger.error(error);
                 Logger.info('Rejecting promise of <UserService.create>');
                 reject(error);

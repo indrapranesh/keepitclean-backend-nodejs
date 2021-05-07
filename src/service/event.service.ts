@@ -1,32 +1,77 @@
-import { QueryTypes, where } from "sequelize";
+import { Op } from "sequelize";
 import { DbConfig } from "../config/db.config"
-import { EventReq } from "../interfaces/event.interface";
+import { EventReq, JoinReq } from "../interfaces/event.interface";
 import { Event, EventType } from "../models/event.model";
 import { Participant } from "../models/participant.model";
 import { ResponseObject } from "../models/response.model";
 import { User } from "../models/user.model";
-import { getSequelize, getTransaction } from "../utils/db.utilts";
+import { getTransaction } from "../utils/db.utilts";
 import { Logger } from "../utils/logger.utils";
 
 export class EventService {
-    public static createEvent(body: any, userId: number ) {
+    public static createEvent(body: any) {
         return new Promise(async (resolve, reject) => {
             await DbConfig.connect();
             const trans = await getTransaction();
             try {
                 Logger.info(`Entering <EventService.create> with ${JSON.stringify({ body: body })}`);
+                body.startTime = (new Date(body.startTime)).toISOString().slice(0, 19).replace('T', ' ');
+                body.endTime = (new Date(body.endTime)).toISOString().slice(0, 19).replace('T', ' ');
                 let eventParams: EventReq = body;
-                eventParams.creator = userId;
-                let user = await Event.create(eventParams, {
+                let event = await Event.create(eventParams, {
                     transaction: trans
                 });
+                await Participant.create({
+                    userId: eventParams.creator,
+                    eventId: event.dataValues.id,
+                    status: 1
+                }, {transaction: trans})
                 await trans.commit();
-                resolve(new ResponseObject(200, "User created successfully", user, null));
+                resolve(new ResponseObject(200, "User created successfully", event, null));
             } catch (error) {
                 Logger.error('Rejecting from <EventService.create>');
                 Logger.error(error);
                 await trans.rollback()
                 reject(error);
+            } finally {
+                DbConfig.closeConnection();
+            }
+        })
+    }
+
+    public static joinEvent(body) {
+        return new Promise(async (resolve, reject) => {
+            await DbConfig.connect();
+            const trans = await getTransaction();
+            try {
+                let paylod: JoinReq = body;
+                paylod.status = 1;
+                const participant = await Participant.create(paylod, {transaction: trans});
+                await trans.commit();
+                resolve(participant);
+            } catch (error) {
+                Logger.error('Rejecting from <EventService.create>');
+                Logger.error(error);
+                await trans.rollback()
+                reject(error);
+            } finally {
+                DbConfig.closeConnection();
+            }
+        })
+    }
+
+    public static getEventTypes() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await DbConfig.connect();
+                let result = await EventType.findAll({
+                    attributes: ['id', 'type']
+                });
+                resolve(result);
+            } catch (err) {
+                Logger.error(err);
+                Logger.info('Error Resolving Query');
+                reject(err);
             } finally {
                 DbConfig.closeConnection();
             }
@@ -40,29 +85,64 @@ export class EventService {
                 Logger.info('Entering <EventService.getAllEvents>');
                 let result: any;
                 if (key && key.length != 0) {
-                    Logger.debug("Search user with key: ", key);
-                    key = '%' + key + '%';
-                    const sequelize = getSequelize();
-                    const users = sequelize.query(
-                        `SELECT id, eventType, creator, name, address, latitude, longitude FROM User WHERE CONCAT_WS('', name) LIKE '${key}'`,
-                        { type: QueryTypes.SELECT }
-                    )
-                    resolve(users);
-                } else {
                     result = await Event.findAndCountAll({
                         include: [
-                            EventType, {
+                            {
+                                model: EventType,
+                                attributes: ['id', 'type']
+                            },
+                            {
                                 model: User,
                                 attributes: [
                                     'id', 'userName', 'firstName', 'lastName'
                                 ]
+                            },
+                            {
+                                model: Participant,
+                                attributes: [
+                                    'id','userId', 'status'
+                                ]
                             }
+                        ],
+                        order: [
+                            ['startTime', 'DESC']
+                        ],
+                        offset: offset,
+                        limit: limit,
+                        where: {
+                            name: {
+                                [Op.like]: '%' + key+ '%'
+                            }
+                        }
+                    });
+                } else {
+                    result = await Event.findAndCountAll({
+                        include: [
+                            {
+                                model: EventType,
+                                attributes: ['id', 'type']
+                            },
+                            {
+                                model: User,
+                                attributes: [
+                                    'id', 'userName', 'firstName', 'lastName'
+                                ]
+                            },
+                            {
+                                model: Participant,
+                                attributes: [
+                                    'id','userId', 'status'
+                                ]
+                            }
+                        ],
+                        order: [
+                            ['startTime', 'DESC']
                         ],
                         offset: offset,
                         limit: limit
                     });
-                    resolve(result);
                 }
+                resolve(result);
             } catch (err) {
                 Logger.error(err);
                 Logger.info('Error Resolving Query');
@@ -82,10 +162,20 @@ export class EventService {
 
                 const result = await Event.findOne({
                     include: [
-                        EventType, {
+                        {
+                            model: EventType,
+                            attributes: ['id', 'type']
+                        },
+                        {
                             model: User,
                             attributes: [
                                 'id', 'userName', 'firstName', 'lastName'
+                            ]
+                        },
+                        {
+                            model: Participant,
+                            attributes: [
+                                'id','userId', 'status'
                             ]
                         }
                     ],
@@ -115,10 +205,20 @@ export class EventService {
 
                 const result = await Event.findAll({
                     include: [
-                        EventType, {
+                        {
+                            model: EventType,
+                            attributes: ['id', 'type']
+                        },
+                        {
                             model: User,
                             attributes: [
                                 'id', 'userName', 'firstName', 'lastName'
+                            ]
+                        },
+                        {
+                            model: Participant,
+                            attributes: [
+                                'id','userId', 'status'
                             ]
                         }
                     ],
@@ -146,17 +246,30 @@ export class EventService {
                 await DbConfig.connect();
                 Logger.info(`Entering <EventService.getJoinedEventsByUser> with ${userId}`);
 
-                const result = await Participant.findAll({
+                const result = await Event.findAll({
                     include: [
                         {
-                            model: Event,
+                            model: EventType,
+                            attributes: ['id', 'type']
+                        },
+                        {
+                            model: User,
+                            attributes: [
+                                'id', 'userName', 'firstName', 'lastName'
+                            ]
+                        },
+                        {
+                            model: Participant,
+                            attributes: [
+                                'id','userId', 'status'
+                            ],
                             where: {
-                                isDeleted: false
+                                userId: userId
                             }
                         }
                     ],
                     where: {
-                        userId: userId
+                        creator: { [Op.ne]: userId}
                     }
                 });
 

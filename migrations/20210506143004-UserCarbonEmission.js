@@ -1,50 +1,25 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Event', {
+    return queryInterface.createTable('UserCarbonEmission', {
         id: {
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
             type: Sequelize.INTEGER
         },
-        eventType: {
+        userId: {
             type: Sequelize.INTEGER,
             references: {
-              model: 'EventType',
+              model: 'User',
               key: 'id',
             }
         },
-        creator: {
-          type: Sequelize.INTEGER,
-          references: {
-            model: 'User',
-            key: 'id',
-          }
-        },
-        name: {
+        date: {
             type: Sequelize.STRING
         },
-        description: {
+        carbonEmission: {
           type: Sequelize.STRING
-        },
-        address: {
-            type: Sequelize.STRING
-        },
-        zipcode: {
-          type: Sequelize.STRING
-        },
-        latitude: {
-            type: Sequelize.STRING
-        },
-        longitude: {
-            type: Sequelize.STRING
-        },
-        imageUrl: {
-          type: Sequelize.STRING
-        },
-        isDeleted: {
-          type: Sequelize.BOOLEAN
         },
         createdAt: {
             allowNull: false,
@@ -59,6 +34,6 @@ module.exports = {
       })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Event');
+    return queryInterface.dropTable('UserCarbonEmission');
   }
 };

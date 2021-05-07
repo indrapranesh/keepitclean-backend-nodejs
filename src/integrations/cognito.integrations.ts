@@ -19,7 +19,7 @@ export class Cognito {
 
   }
 
-  static addUser(user: ISignupReq, isAdded: boolean = false): Promise<string> {
+  static addUser(user: ISignupReq): Promise<string> {
     Logger.debug(`Adding user to cognito.`)
     return new Promise((resolve, reject) => {
       Logger.info(`Entering into <addUser> with ${JSON.stringify(user)}`)
@@ -38,75 +38,19 @@ export class Cognito {
             {
               Name: 'email',
               Value: `${user.email}`
-            },
-            {
-              Name: 'email_verified', 
-              Value: 'true'
-            },
-            {
-              Name: 'phone_number_verified',
-              Value: 'true'
             }
-          ],
-          TemporaryPassword: user.password
+          ]
         };
-        var addedUser = {
-          UserPoolId: COGNITO_CONFIG.userPoolId,
-          Username: user.cognitoUserName,
-          UserAttributes: [
-            {
-              Name: 'phone_number',
-              Value: user.phoneNumber
-            },
-            {
-              Name: 'email',
-              Value: `${user.email}`
-            },
-            {
-              Name: 'email_verified', 
-              Value: 'true'
-            },
-            {
-              Name: 'phone_number_verified',
-              Value: 'true'
-            }
-          ],
-          DesiredDeliveryMediums: ['EMAIL'],
-          TemporaryPassword: user.password
-        }
-        if (!isAdded) {
-          cognitoidentityserviceprovider.signUp(params, function (err, data) {
-            if (err) {
-              throw err;
-            }
-            else {
-              Logger.debug(`Response from cognito for adding use ${data}`);
-              Logger.info('Resolving promise from <addUser>')
-              resolve(user.cognitoUserName);
-            }
-          });
-
-          const signedUpUser = this.getCognitoUser(user.cognitoUserName)
-          signedUpUser.setUserMfaPreference({ PreferredMfa: true, Enabled: true }, null, (err, result) => {
-            Logger.debug(`${err}`);
-            Logger.debug(`Enable MFA Preference ---- ${JSON.stringify(result)}`)
-          })
-        } else {
-          Logger.debug('Admin Create User');
-          cognitoidentityserviceprovider.adminCreateUser(addedUser, (err, data) => {
-            if (err) {
-              reject(new IntegrationException(err.message));
-            } else {
-              Logger.debug(`Response from cognito for adding use ${data}`);
-              Logger.info('Resolving promise from <addUser>');
-              // if (user.role == 'Volunteer' || user.role == 'User') {
-              //   Cognito.setPassword(user.cognitoUserName, user.password)
-              // }
-              resolve(user.cognitoUserName);
-            }
-          });
-          cognitoidentityserviceprovider.adminUpdateUserAttributes
-        }
+        cognitoidentityserviceprovider.signUp(params, function (err, data) {
+          if (err) {
+            throw err;
+          }
+          else {
+            Logger.debug(`Response from cognito for adding use ${data}`);
+            Logger.info('Resolving promise from <addUser>')
+            resolve(user.cognitoUserName);
+          }
+        });
       } catch (error) {
         Logger.error(error);
         Logger.info('Rejecting promise from <addUser>')

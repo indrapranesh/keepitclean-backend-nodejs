@@ -6,7 +6,6 @@ import { UserData } from "../interfaces/user.interface";
 import { ResponseObject } from "../models/response.model";
 import { User, UserAddress } from "../models/user.model";
 import { getSequelize, getTransaction } from "../utils/db.utilts";
-import { Extensions } from "../utils/extensions";
 import { Logger } from "../utils/logger.utils";
 
 export class UserService {
@@ -33,12 +32,12 @@ export class UserService {
                         userName: userParams.userName,
                         email: userParams.email,
                         phoneNumber: userParams.phoneNumber,
-                        password: Extensions.generatePassword(),
+                        password: userParams.password,
                         cognitoUserName: userParams.email,
                         code: '',
                         isFirstLogin: true
                     }
-                    const cognitoUserName = await Cognito.addUser(signupReq, true);
+                    const cognitoUserName = await Cognito.addUser(signupReq);
                     userParams.cognitoUserName = cognitoUserName;
                     userParams.isFirstLogin = true;
                     let user = await User.create(userParams, {

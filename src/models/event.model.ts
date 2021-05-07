@@ -1,4 +1,5 @@
-import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey} from "sequelize-typescript";
+import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey, BelongsTo, HasMany} from "sequelize-typescript";
+import { Participant } from "./participant.model";
 import { User } from "./user.model";
 
 @Table({
@@ -46,23 +47,35 @@ export class Event extends Model<Event> {
     address: string;
 
     @Column(DataType.STRING)
-    city: string;
+    latitude: number;
 
     @Column(DataType.STRING)
-    zipcode: string;
-
-    @Column(DataType.STRING)
-    latitude: string;
-
-    @Column(DataType.STRING)
-    longitude: string;
+    longitude: number;
 
     @Column(DataType.STRING)
     imageUrl: string;
+
+    @Column(DataType.STRING)
+    startTime: Date;
+
+    @Column(DataType.STRING)
+    endTime: Date;
+
+    @Column(DataType.STRING)
+    phoneNumber: string;
     
     @Column(DataType.DATE)
     createdAt: Date;
 
     @Column(DataType.DATE)
     updatedAt: Date;
+
+    @BelongsTo(() => EventType)
+    type: EventType
+
+    @BelongsTo(() => User)
+    host: User
+
+    @HasMany(() => Participant)
+    participants: Participant
 }
