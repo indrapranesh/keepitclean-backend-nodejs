@@ -1,4 +1,4 @@
-import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey} from "sequelize-typescript";
+import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey, BelongsTo} from "sequelize-typescript";
 import { Event } from "./event.model";
 import { User } from "./user.model";
 
@@ -46,4 +46,7 @@ export class Participant extends Model<Participant> {
 
     @Column(DataType.DATE)
     updatedAt: Date;
+
+    @BelongsTo(() => User)
+    user: User
 }

@@ -1,7 +1,6 @@
 import { QueryTypes } from "sequelize";
 import { DbConfig } from "../config/db.config";
 import { Cognito } from "../integrations/cognito.integrations";
-import { ISignupReq } from "../interfaces/request.interface";
 import { UserData } from "../interfaces/user.interface";
 import { ResponseObject } from "../models/response.model";
 import { User, UserAddress } from "../models/user.model";
@@ -9,6 +8,31 @@ import { getSequelize, getTransaction } from "../utils/db.utilts";
 import { Logger } from "../utils/logger.utils";
 
 export class UserService {
+
+    public static firstLoginUpdate(userId: number) {
+        return new Promise(async (resolve, reject) => {
+            await DbConfig.connect();
+            const trans = await getTransaction();
+            try {
+                let user = await User.update({
+                    isFirstLogin: false
+                }, {
+                    where: { id: userId},
+                    transaction: trans
+                });
+                trans.commit();
+                resolve(user);
+            } catch (error) {
+                Logger.error(error);
+                await trans.rollback()
+                reject(error);
+            } finally {
+                DbConfig.closeConnection();
+            }
+        })
+    }
+
+
     public static create(user: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
             await DbConfig.connect();
@@ -26,7 +50,7 @@ export class UserService {
                     resolve(new ResponseObject(400, "User already Exists", null, null));
                 } else {
                     Logger.info(`User doesn't exist. Creating new user`);
-                    const signupReq: ISignupReq = {
+                    const signupReq = {
                         firstName: userParams.firstName,
                         lastName: userParams.lastName,
                         userName: userParams.userName,

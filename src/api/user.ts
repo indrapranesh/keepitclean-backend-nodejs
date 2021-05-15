@@ -28,6 +28,21 @@ class UserApi {
         });
     }
 
+    static firstLoginUpdate(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!event.path && ! event.path.userId) {
+                    throw new NotFoundException('Missing userId in event path params');
+                }
+                let response = await UserService.firstLoginUpdate(event.path.userId);
+                resolve(response);
+            } catch (error) {
+                Logger.error(error);
+                reject(error);
+            }
+        })
+    }
+
     static getAllUsers(event) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -72,3 +87,4 @@ class UserApi {
 export const create = UserApi.create;
 export const getAllUsers = UserApi.getAllUsers;
 export const getUserById = UserApi.getUserById;
+export const firstLoginUpdate = UserApi.firstLoginUpdate;

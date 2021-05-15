@@ -57,12 +57,35 @@ class EventApi {
     static getAllEvents(event) {
         return new Promise(async (resolve, reject) => {
             try {
-                Logger.info(`Entering <EventApi.getAllEvents> with ${event.query}`);
+                Logger.info(`Entering <EventApi.getAllEvents> with ${JSON.stringify(event.query)} ${JSON.stringify(event.path)}`);
                 const page = event.query.page ? +event.query.page : 0;
                 const limit = event.query.size ? +event.query.size : 10;
                 const offset = page * limit;
-                const key = event.query.key;
-                const result = await EventService.getAllEvents(limit, offset, key);
+                if (!event.path && ! event.path.state) {
+                    throw new NotFoundException('Missing City in event path params');
+                }
+                if (!event.query && ! event.query.date) {
+                    throw new NotFoundException('Missing date in event path params');
+                }
+                const result = await EventService.getAllEvents(event.path.state,event.query.date, limit, offset);
+                Logger.info(`Resolving promise from <EventApi.getAllEvents> with ${result}`);
+                resolve(result);
+            } catch (error) {
+                Logger.error(error);
+                Logger.info('Rejecting promise from <EventApi.getAllEvents>');
+                reject(error);
+            }
+        });
+    }
+
+    static searchEvents(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                Logger.info(`Entering <EventApi.getAllEvents> with ${event.query}`);
+                if (!event.query && ! event.query.key) {
+                    throw new NotFoundException('Missing date in event path params');
+                }
+                const result = await EventService.search(event.query.key, event.path.state);
                 Logger.info(`Resolving promise from <EventApi.getAllEvents> with ${result}`);
                 resolve(result);
             } catch (error) {
@@ -130,6 +153,25 @@ class EventApi {
         });
     }
 
+    static getParticipantsData(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                Logger.info(`Entering <EventApi.getParticipantsData> with ${event.query}`);
+                if (!event.path && ! event.path.eventId) {
+                    throw new NotFoundException('Missing userId in event path params');
+                }
+                const eventId = event.path.eventId;
+                const result = await EventService.getParticipantsData(eventId);
+                Logger.info(`Resolving promise from <EventApi.getParticipantsData> with ${result}`);
+                resolve(result);
+            } catch (error) {
+                Logger.error(error);
+                Logger.info('Rejecting promise from <EventApi.getParticipantsData>');
+                reject(error);
+            }
+        });
+    }
+
     static deleteEvent(event) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -152,9 +194,11 @@ class EventApi {
 
 export const createEvent = EventApi.createEvent;
 export const getAllEvents = EventApi.getAllEvents;
+export const searchEvents = EventApi.searchEvents;
 export const getEventById = EventApi.getEventById;
 export const getHostedEventsByUser = EventApi.getHostedEventsByUser;
 export const getJoinedEventsByUser = EventApi.getJoinedEventsByUser;
 export const deleteEvent = EventApi.deleteEvent;
 export const getEventTypes = EventApi.getEventTypes;
 export const joinEvent = EventApi.joinEvent;
+export const getParticipantsData = EventApi.getParticipantsData;

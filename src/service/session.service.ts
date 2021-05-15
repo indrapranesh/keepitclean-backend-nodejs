@@ -1,13 +1,14 @@
 import { ResponseObject } from "../models/response.model";
 import { Cognito } from "../integrations/cognito.integrations";
-import { IConfirmPassword, ILoginReq, ILoginRes, IRefreshSessionReq, ISignupReq } from "../interfaces/request.interface";
+import { IAddressReq, IConfirmPassword, ILoginReq, ILoginRes, IRefreshSessionReq, ISignupReq, IUserReq } from "../interfaces/request.interface";
 import { Logger } from "../utils/logger.utils";
 import { MESSAGE } from "../constants/error.constants";
 import { SessionBusinessException } from "../exceptions/business-exceptions/session.business.exception";
 import { getTransaction } from "../utils/db.utilts";
-import { User } from "../models/user.model";
+import { User, UserAddress } from "../models/user.model";
 import { NotFoundException } from "../exceptions/not-found.exception";
 import { DbConfig } from "../config/db.config";
+import { UserAchievementMapper } from "../models/achievement.model";
 
 export class SessionService {
     static login(req: ILoginReq) {
@@ -16,14 +17,11 @@ export class SessionService {
                 await DbConfig.connect();
                 Logger.info(`Entering into <SessionService.login> with ${JSON.stringify(req)}`);
                 const user = await User.findOne({
-                    where: { email: req.email }
+                    where: { email: req.email },
                 });
                 if (!user) {
                     Logger.debug(`User with email ${req.email} is not found`);
                     throw new NotFoundException(MESSAGE.USER.USER_NOT_FOUND);
-                }
-                if (user.isFirstLogin) {
-
                 }
                 Logger.debug(`Got non null response from DB for email ${req.email} ---- ${JSON.stringify(user)}`);
                 const session: any = await Cognito.login(user.cognitoUserName, req.password);
@@ -74,7 +72,7 @@ export class SessionService {
                     Logger.debug(`User with email ${user.email} already exists`);
                     throw new SessionBusinessException.BusinessExceptionUserExist(MESSAGE.USER.USER_ALREADY_EXISTS);
                 }
-                const signupReq: ISignupReq = {
+                const signupReq: IUserReq = {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
@@ -87,6 +85,20 @@ export class SessionService {
                 } 
                 await Cognito.addUser(signupReq);
                 let result = await User.create(signupReq, {transaction: trans});
+                let addressReq: IAddressReq = {
+                    address: user.address,
+                    userId: result.id,
+                    latitude: user.latitude,
+                    longitude: user.longitude,
+                    state: user.state,
+                    country: user.country
+                }
+                await UserAddress.create(addressReq, {transaction: trans});
+                await UserAchievementMapper.create({
+                    userId: result.id, 
+                    achievementId: 1,
+                    isShown: false
+                }, {transaction: trans})
                 trans.commit();
                 resolve(new ResponseObject(200, "User created successfully", result, null));
             } catch (error) {

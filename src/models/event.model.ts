@@ -47,6 +47,12 @@ export class Event extends Model<Event> {
     address: string;
 
     @Column(DataType.STRING)
+    state: string;
+
+    @Column(DataType.STRING)
+    country: string;
+
+    @Column(DataType.STRING)
     latitude: number;
 
     @Column(DataType.STRING)

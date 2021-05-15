@@ -1,4 +1,4 @@
-import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey} from "sequelize-typescript";
+import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey, BelongsTo} from "sequelize-typescript";
 import { User } from "./user.model";
 
 @Table({
@@ -15,8 +15,8 @@ export class Achievement extends Model<Achievement> {
     @Column(DataType.STRING)
     name: string;
     
-    @Column(DataType.INTEGER)
-    level: number;
+    @Column(DataType.STRING)
+    description: string;
 
     @Column(DataType.STRING)
     logoUrl: string;
@@ -41,10 +41,16 @@ export class UserAchievementMapper extends Model<UserAchievementMapper> {
     @ForeignKey(() => User)
     @Column(DataType.INTEGER)
     userId: number;
+
+    @Column(DataType.BOOLEAN)
+    isShown: boolean;
     
     @Column(DataType.DATE)
     createdAt: Date;
 
     @Column(DataType.DATE)
     updatedAt: Date;
+
+    @BelongsTo(() => Achievement)
+    achievement: Achievement
 }

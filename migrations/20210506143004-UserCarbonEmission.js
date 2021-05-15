@@ -16,7 +16,7 @@ module.exports = {
             }
         },
         date: {
-            type: Sequelize.STRING
+            type: Sequelize.DATE
         },
         carbonEmission: {
           type: Sequelize.STRING

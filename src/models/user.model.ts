@@ -1,4 +1,5 @@
-import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey} from "sequelize-typescript";
+import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey, HasMany, HasOne} from "sequelize-typescript";
+import { UserAchievementMapper } from "./achievement.model";
 
 @Table({
     tableName: 'User',
@@ -37,6 +38,12 @@ export class User extends Model<User> {
 
     @Column(DataType.DATE)
     updatedAt: Date;
+
+    @HasMany(()=> UserAchievementMapper)
+    achievements: UserAchievementMapper;
+
+    @HasOne(() => UserAddress)
+    address: UserAddress
 }
 
 @Table({
@@ -58,10 +65,10 @@ export class UserAddress extends Model<UserAddress> {
     address: string;
 
     @Column(DataType.STRING)
-    city: string;
+    state: string;
 
-    @Column(DataType.INTEGER)
-    zipcode: number;
+    @Column(DataType.STRING)
+    country: string;
 
     @Column(DataType.STRING)
     latitude: string;

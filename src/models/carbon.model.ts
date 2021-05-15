@@ -1,4 +1,5 @@
 import { Table, PrimaryKey, AutoIncrement, Column, DataType, Model, ForeignKey, HasMany, HasOne} from "sequelize-typescript";
+import { User } from "./user.model";
 
 @Table({
     tableName: 'CarbonEmissionCategory',
@@ -66,5 +67,34 @@ export class CarbonEmissionFactor extends Model<CarbonEmissionFactor> {
 
     @Column(DataType.STRING)
     emissionUnit: string;
+}
+
+
+@Table({
+    tableName: 'UserCarbonEmission',
+    modelName: 'UserCarbonEmission'
+})
+export class UserCarbonEmission extends Model<UserCarbonEmission> {
+    
+    @PrimaryKey
+    @AutoIncrement
+    @Column(DataType.INTEGER)
+    id: number;
+
+    @ForeignKey(() => User)
+    @Column(DataType.INTEGER)
+    userId: number;
+
+    @Column(DataType.DATE)
+    date: Date;
+
+    @Column(DataType.FLOAT)
+    carbonEmission: number;
+
+    @Column(DataType.DATE)
+    createdAt: Date;
+
+    @Column(DataType.DATE)
+    updatedAt: Date;
 }
 

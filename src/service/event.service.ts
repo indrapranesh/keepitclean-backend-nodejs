@@ -39,6 +39,55 @@ export class EventService {
         })
     }
 
+    public static search(key: string, state:string) {
+        return new Promise(async (resolve, reject) => {
+            await DbConfig.connect();
+            try {
+                console.log(key, state);
+                let result = await Event.findAndCountAll({
+                    include: [
+                        {
+                            model: EventType,
+                            attributes: ['id', 'type']
+                        },
+                        {
+                            model: User,
+                            attributes: [
+                                'id', 'userName', 'firstName', 'lastName'
+                            ]
+                        },
+                        {
+                            model: Participant,
+                            attributes: [
+                                'id','userId', 'status'
+                            ]
+                        }
+                    ],
+                    order: [
+                        ['startTime', 'DESC']
+                    ],
+                    where: {
+                        [Op.and] : [{
+                            name: {
+                                [Op.like]: '%' + key+ '%'
+                            },
+                        }, {
+                            state: state
+                        }]
+                    }
+                    
+                });
+                resolve(result)
+            } catch (error) {
+                Logger.error('Rejecting from <EventService.create>');
+                Logger.error(error);
+                reject(error);
+            } finally {
+                DbConfig.closeConnection();
+            }
+        })
+    }
+
     public static joinEvent(body) {
         return new Promise(async (resolve, reject) => {
             await DbConfig.connect();
@@ -78,70 +127,47 @@ export class EventService {
         })
     }
 
-    public static getAllEvents(limit: number, offset: number, key: string) {
+    public static getAllEvents(state: string, date: string, limit: number, offset: number) {
         return new Promise(async (resolve, reject) => {
             try {
                 await DbConfig.connect();
-                Logger.info('Entering <EventService.getAllEvents>');
+                Logger.info('Entering <EventService.getAllEvents>', state, date);
                 let result: any;
-                if (key && key.length != 0) {
-                    result = await Event.findAndCountAll({
-                        include: [
-                            {
-                                model: EventType,
-                                attributes: ['id', 'type']
-                            },
-                            {
-                                model: User,
-                                attributes: [
-                                    'id', 'userName', 'firstName', 'lastName'
-                                ]
-                            },
-                            {
-                                model: Participant,
-                                attributes: [
-                                    'id','userId', 'status'
-                                ]
-                            }
-                        ],
-                        order: [
-                            ['startTime', 'DESC']
-                        ],
-                        offset: offset,
-                        limit: limit,
-                        where: {
-                            name: {
-                                [Op.like]: '%' + key+ '%'
+                result = await Event.findAndCountAll({
+                    where: {
+                        [Op.and] : [{
+                            state: state
+                        },{
+                            startTime: {
+                                [Op.gte]: date
                             }
                         }
-                    });
-                } else {
-                    result = await Event.findAndCountAll({
-                        include: [
-                            {
-                                model: EventType,
-                                attributes: ['id', 'type']
-                            },
-                            {
-                                model: User,
-                                attributes: [
-                                    'id', 'userName', 'firstName', 'lastName'
-                                ]
-                            },
-                            {
-                                model: Participant,
-                                attributes: [
-                                    'id','userId', 'status'
-                                ]
-                            }
-                        ],
-                        order: [
-                            ['startTime', 'DESC']
-                        ],
-                        offset: offset,
-                        limit: limit
-                    });
-                }
+                    ]
+                    },
+                    include: [
+                        {
+                            model: EventType,
+                            attributes: ['id', 'type']
+                        },
+                        {
+                            model: User,
+                            attributes: [
+                                'id', 'userName', 'firstName', 'lastName'
+                            ]
+                        },
+                        {
+                            model: Participant,
+                            attributes: [
+                                'id','userId', 'status'
+                            ]
+                        }
+                    ],
+                    order: [
+                        ['startTime', 'DESC']
+                    ],
+                    offset: offset,
+                    limit: limit
+                });
                 resolve(result);
             } catch (err) {
                 Logger.error(err);
@@ -281,6 +307,32 @@ export class EventService {
                 Logger.info('Rejecting promise of <EventService.getJoinedEventsByUser>');
                 reject(err);
             } finally {
+                DbConfig.closeConnection();
+            }
+        })
+    }
+
+    public static getParticipantsData(eventId: number) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await DbConfig.connect();
+                Logger.info(`Entering <EventService.getParticipantsData> with ${eventId}`);
+                let participants = await Participant.findAll({
+                    where: { eventId: eventId},
+                    attributes: ['id'],
+                    include: [{
+                        model: User,
+                        attributes: ['firstName', 'lastName', 'email', 'phoneNumber']
+                    }]
+                });
+                resolve(participants);
+            } catch (err) {
+                Logger.error(err);
+                Logger.info('Error Resolving Query');
+                Logger.info('Rejecting promise of <EventService.getParticipantsData>');
+                reject(err);
+            } finally {
+                Logger.info('FINALLY')
                 DbConfig.closeConnection();
             }
         })

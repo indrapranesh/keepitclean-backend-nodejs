@@ -37,6 +37,32 @@ export interface ISignupReq {
     password: string;
     code: string;
     isFirstLogin: boolean;
+    address: string;
+    state: string;
+    country: string;
+    latitude: string;
+    longitude: string;
+}
+
+export interface IAddressReq {
+    userId: number
+    address: string;
+    state: string;
+    country: string;
+    latitude: string;
+    longitude: string;
+}
+
+export interface IUserReq {
+    phoneNumber: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    userName: string
+    cognitoUserName: string;
+    password: string;
+    code: string;
+    isFirstLogin: boolean;
 }
 
 export interface ILoginReq {

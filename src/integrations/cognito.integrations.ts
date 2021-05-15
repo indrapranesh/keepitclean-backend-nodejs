@@ -1,7 +1,7 @@
 import { Logger } from "../utils/logger.utils";
 import * as AWS from 'aws-sdk';
 import { COGNITO_ENDPOINT, COGNITO_CONFIG } from "../constants/aws.constants";
-import { IConfirmPassword, ILoginRes, ISignupReq, IVerifyOTPResponse } from "../interfaces/request.interface";
+import { IConfirmPassword, ILoginRes, ISignupReq, IUserReq, IVerifyOTPResponse } from "../interfaces/request.interface";
 import { IntegrationException } from "../exceptions/integrations.exception";
 import {
   CognitoUserPool, CognitoUser, CognitoRefreshToken, AuthenticationDetails
@@ -19,7 +19,7 @@ export class Cognito {
 
   }
 
-  static addUser(user: ISignupReq): Promise<string> {
+  static addUser(user: IUserReq): Promise<string> {
     Logger.debug(`Adding user to cognito.`)
     return new Promise((resolve, reject) => {
       Logger.info(`Entering into <addUser> with ${JSON.stringify(user)}`)
