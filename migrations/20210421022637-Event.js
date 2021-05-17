@@ -31,7 +31,10 @@ module.exports = {
         address: {
             type: Sequelize.STRING
         },
-        zipcode: {
+        state: {
+          type: Sequelize.STRING
+        },
+        country: {
           type: Sequelize.STRING
         },
         latitude: {

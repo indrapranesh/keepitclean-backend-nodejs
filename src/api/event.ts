@@ -85,7 +85,10 @@ class EventApi {
                 if (!event.query && ! event.query.key) {
                     throw new NotFoundException('Missing date in event path params');
                 }
-                const result = await EventService.search(event.query.key, event.path.state);
+                if (!event.query && ! event.query.date) {
+                    throw new NotFoundException('Missing date in event path params');
+                }
+                const result = await EventService.search(event.query.key, event.path.state, event.query.date);
                 Logger.info(`Resolving promise from <EventApi.getAllEvents> with ${result}`);
                 resolve(result);
             } catch (error) {

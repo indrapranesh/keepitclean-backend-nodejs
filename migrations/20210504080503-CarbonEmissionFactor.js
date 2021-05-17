@@ -12,7 +12,7 @@ module.exports = {
           type: Sequelize.STRING
         },
         emissionPerUnit: {
-          type: Sequelize.STRING
+          type: Sequelize.FLOAT
         },
         emissionUnit: {
           type: Sequelize.STRING

@@ -19,7 +19,7 @@ module.exports = {
             type: Sequelize.DATE
         },
         carbonEmission: {
-          type: Sequelize.STRING
+          type: Sequelize.FLOAT
         },
         createdAt: {
             allowNull: false,

@@ -11,11 +11,17 @@ module.exports = {
         name: {
           type: Sequelize.STRING
         },
-        level: {
+        description: {
+          type: Sequelize.STRING
+        },
+        hostedCount: {
+          type: Sequelize.INTEGER
+        },
+        participatedCount: {
           type: Sequelize.INTEGER
         },
         logoUrl: {
-          type: Sequelize.INTEGER
+          type: Sequelize.STRING
         }
       })
   },

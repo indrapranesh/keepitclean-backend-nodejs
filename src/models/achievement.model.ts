@@ -18,6 +18,12 @@ export class Achievement extends Model<Achievement> {
     @Column(DataType.STRING)
     description: string;
 
+    @Column(DataType.NUMBER)
+    hostedCount: number;
+
+    @Column(DataType.NUMBER)
+    participatedCount: number;
+
     @Column(DataType.STRING)
     logoUrl: string;
 }

@@ -32,7 +32,37 @@ class AchievementApi {
             }
         })
     }
+
+    static addAchievements(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!event.path && ! event.path.userId) {
+                    throw new NotFoundException('Missing userId in event path params');
+                }
+                let response = await AchievementService.addAchievements(event.path.userId);
+                resolve(response);
+            } catch(err) {
+                Logger.info(err);
+                reject(err);
+            }
+        })
+    }
+
+    static getAllAchievements(event) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                Logger.info(event);
+                let response = await AchievementService.getAllAchievements();
+                resolve(response);
+            } catch(err) {
+                Logger.info(err);
+                reject(err);
+            }
+        })
+    }
 }
 
 export const achievementShown = AchievementApi.achievementShown;
 export const getUserAchievements = AchievementApi.getUserAchievements;
+export const getAllAchievements = AchievementApi.getAllAchievements;
+export const addAchievements = AchievementApi.addAchievements;

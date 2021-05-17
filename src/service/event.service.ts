@@ -21,11 +21,6 @@ export class EventService {
                 let event = await Event.create(eventParams, {
                     transaction: trans
                 });
-                await Participant.create({
-                    userId: eventParams.creator,
-                    eventId: event.dataValues.id,
-                    status: 1
-                }, {transaction: trans})
                 await trans.commit();
                 resolve(new ResponseObject(200, "User created successfully", event, null));
             } catch (error) {
@@ -39,7 +34,7 @@ export class EventService {
         })
     }
 
-    public static search(key: string, state:string) {
+    public static search(key: string, state:string, date: string) {
         return new Promise(async (resolve, reject) => {
             await DbConfig.connect();
             try {
@@ -73,6 +68,10 @@ export class EventService {
                             },
                         }, {
                             state: state
+                        }, {
+                            startTime: {
+                                [Op.gte]: date
+                            }
                         }]
                     }
                     
