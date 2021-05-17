@@ -8,6 +8,7 @@ import ENVUtils from "../utils/env.utils";
 import { Event, EventType } from "../models/event.model";
 import { Achievement, UserAchievementMapper } from "../models/achievement.model";
 import { Participant, ParticipantStatus } from "../models/participant.model";
+import { CarbonEmissionActivity, CarbonEmissionCategory, CarbonEmissionFactor, UserCarbonEmission } from "../models/carbon.model";
 
 export class DbConfig {
     private static sequelize: Sequelize = null;
@@ -66,7 +67,11 @@ export class DbConfig {
            Achievement,
            UserAchievementMapper,
            ParticipantStatus,
-           Participant
+           Participant,
+           CarbonEmissionActivity,
+           CarbonEmissionFactor,
+           CarbonEmissionCategory,
+           UserCarbonEmission
         ])
     }
 }

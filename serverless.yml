@@ -79,6 +79,53 @@ functions:
           cors: true
           integration: lambda
 
+  firstLoginUpdate:
+    handler: src/api/user.firstLoginUpdate
+    events:
+      - http:
+          path: api/user/login/update/{userId}
+          method: patch
+          cors: true
+          integration: lambda
+
+
+  # Acheivement API
+
+  achievementShown:
+    handler: src/api/achievement.achievementShown
+    events:
+      - http:
+          path: api/achievement/{achievementId}
+          method: patch
+          cors: true
+          integration: lambda
+
+  getAllAchievements:
+    handler: src/api/achievement.getAllAchievements
+    events:
+      - http:
+          path: api/achievements
+          method: get
+          cors: true
+          integration: lambda
+
+  getUserAchievements:
+    handler: src/api/achievement.getUserAchievements
+    events:
+      - http:
+          path: api/achievements/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  addAchievements:
+    handler: src/api/achievement.addAchievements
+    events:
+      - http:
+          path: api/achievements/add/{userId}
+          method: post
+          cors: true
+          integration: lambda
 
   # Session API
 
@@ -118,7 +165,7 @@ functions:
     handler: src/api/session.refreshSession
     events:
       - http:
-          path: api/user/verify
+          path: api/session/refresh
           method: post
           integration: lambda
 
@@ -150,11 +197,38 @@ functions:
           cors: true
           integration: lambda
 
+  joinEvent:
+    handler: src/api/event.joinEvent
+    events:
+      - http:
+          path: api/event/join
+          method: post
+          cors: true
+          integration: lambda
+
   getAllEvents:
     handler: src/api/event.getAllEvents
     events:
       - http:
-          path: api/events
+          path: api/events/{state}
+          method: get
+          cors: true
+          integration: lambda
+
+  searchEvents:
+    handler: src/api/event.searchEvents
+    events:
+      - http:
+          path: api/events/search/{state}
+          method: get
+          cors: true
+          integration: lambda 
+
+  getEventTypes:
+    handler: src/api/event.getEventTypes
+    events:
+      - http:
+          path: api/event/types
           method: get
           cors: true
           integration: lambda
@@ -172,7 +246,7 @@ functions:
     handler: src/api/event.getHostedEventsByUser
     events:
       - http:
-          path: api/event/host/{userId}
+          path: api/events/hosted/{userId}
           method: get
           cors: true
           integration: lambda
@@ -181,7 +255,16 @@ functions:
     handler: src/api/event.getJoinedEventsByUser
     events:
       - http:
-          path: api/event/join/{userId}
+          path: api/events/joined/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getParticipantsData:
+    handler: src/api/event.getParticipantsData
+    events:
+      - http:
+          path: api/event/{eventId}/participants
           method: get
           cors: true
           integration: lambda
@@ -194,5 +277,33 @@ functions:
           method: delete
           cors: true
           integration: lambda
+
+  getEmissionCategories:
+    handler: src/api/carbon.getEmissionCategories
+    events:
+      - http:
+          path: api/carbon/categories
+          method: get
+          cors: true
+          integration: lambda
+
+  addUserCarbonEmission:
+    handler: src/api/carbon.addUserCarbonEmission
+    events:
+      - http:
+          path: api/carbon/emission/user/{userId}
+          method: post
+          cors: true
+          integration: lambda
+
+  getAllUserEmission:
+    handler: src/api/carbon.getAllUserEmission
+    events:
+      - http:
+          path: api/carbon/emission/user/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
 resources:
   - ${file(./serverless-assets/serverless-template.yml)}
