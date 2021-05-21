@@ -546,7 +546,7 @@ Resources:
 
       DisableApiTermination: false
       ImageId: !Ref BastionImageId
-      InstanceType: t2.nano
+      InstanceType: t2.micro
       KeyName: !Ref BastionKeyName
       Monitoring: false
       SubnetId: !Ref VPCPublicSubnet
