@@ -9,6 +9,7 @@ import { Event, EventType } from "../models/event.model";
 import { Achievement, UserAchievementMapper } from "../models/achievement.model";
 import { Participant, ParticipantStatus } from "../models/participant.model";
 import { CarbonEmissionActivity, CarbonEmissionCategory, CarbonEmissionFactor, UserCarbonEmission } from "../models/carbon.model";
+import { LocalLaws } from "../models/localLaw.model";
 
 export class DbConfig {
     private static sequelize: Sequelize = null;
@@ -71,7 +72,8 @@ export class DbConfig {
            CarbonEmissionActivity,
            CarbonEmissionFactor,
            CarbonEmissionCategory,
-           UserCarbonEmission
+           UserCarbonEmission,
+           LocalLaws
         ])
     }
 }

@@ -305,5 +305,14 @@ functions:
           cors: true
           integration: lambda
 
+  getLocalLaws:
+    handler: src/api/law.getLocalLaws
+    events:
+      - http:
+          path: api/laws
+          method: get
+          cors: true
+          integration: lambda
+
 resources:
   - ${file(./serverless-assets/serverless-template.yml)}
