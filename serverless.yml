@@ -135,6 +135,7 @@ functions:
       - http:
           path: api/login
           method: post
+          cors: true
           integration: lambda
 
   signUp:
@@ -143,6 +144,7 @@ functions:
       - http:
           path: api/signup
           method: post
+          cors: true
           integration: lambda
 
   changePassword:
@@ -151,6 +153,7 @@ functions:
       - http:
           path: api/password/change
           method: post
+          cors: true
           integration: lambda
 
   verifyUser:
@@ -159,6 +162,7 @@ functions:
       - http:
           path: api/user/verify
           method: post
+          cors: true
           integration: lambda
   
   refreshSession:
@@ -167,6 +171,7 @@ functions:
       - http:
           path: api/session/refresh
           method: post
+          cors: true
           integration: lambda
 
   forgetPassword:
@@ -175,6 +180,7 @@ functions:
       - http:
           path: api/password/forget
           method: post
+          cors: true
           integration: lambda
 
   confirmForgotPassword:
@@ -183,6 +189,7 @@ functions:
       - http:
           path: api/password/reset
           method: post
+          cors: true
           integration: lambda
 
 
