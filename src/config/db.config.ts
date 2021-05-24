@@ -2,6 +2,14 @@ import { Sequelize } from "sequelize-typescript";
 import { Logger } from "../utils/logger.utils";
 import { Session } from "../namespaces/session.namespace";
 import { SESSION_VARIABLES } from "../constants/aws.constants";
+import { User, UserAddress } from "../models/user.model";
+import { ENV_CONSTANTS } from "../constants/env.constants";
+import ENVUtils from "../utils/env.utils";
+import { Event, EventType } from "../models/event.model";
+import { Achievement, UserAchievementMapper } from "../models/achievement.model";
+import { Participant, ParticipantStatus } from "../models/participant.model";
+import { CarbonEmissionActivity, CarbonEmissionCategory, CarbonEmissionFactor, UserCarbonEmission } from "../models/carbon.model";
+import { LocalLaws } from "../models/localLaw.model";
 
 export class DbConfig {
     private static sequelize: Sequelize = null;
@@ -26,10 +34,10 @@ export class DbConfig {
     public static async init() {
         // let dbSecrets = await DBManager.getSecrets();
         // dbSecrets = JSON.parse(dbSecrets);
-        const host = 'localhost'
-        , database = 'ar_op_master'
-        , username = 'root'
-        , password = 'testpass'
+        const host = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.HOST)
+        , database = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.DB_NAME)
+        , username = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.USERNAME)
+        , password = ENVUtils.getEnv(ENV_CONSTANTS.DATABASE_CONFIG.PASSWORD)
             , port = 3306
 
         this.sequelize = new Sequelize({
@@ -54,13 +62,18 @@ export class DbConfig {
         Logger.debug('Entering <registerModels>');
         this.sequelize.addModels([
            User,
-           UserRole,
-           Marker,
-           MarkerImage,
-           Realm,
-           MarkerVideo,
-           ModelDetails,
-           UserRealmMapper
+           UserAddress,
+           EventType,
+           Event,
+           Achievement,
+           UserAchievementMapper,
+           ParticipantStatus,
+           Participant,
+           CarbonEmissionActivity,
+           CarbonEmissionFactor,
+           CarbonEmissionCategory,
+           UserCarbonEmission,
+           LocalLaws
         ])
     }
 }

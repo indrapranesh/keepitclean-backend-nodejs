@@ -4,6 +4,7 @@ export interface UserData {
     userName: string;
     phoneNumber: string;
     email: string;
+    password: string;
     cognitoUserName: string;
     isFirstLogin: boolean;
 }

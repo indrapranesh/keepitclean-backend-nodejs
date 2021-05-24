@@ -1,6 +1,5 @@
 service: 
   name: keepitclean-backend-nodejs
-frameworkVersion: '2'
 
 plugins:
   - serverless-webpack
@@ -12,11 +11,32 @@ custom:
   stage: dev
   stackPrefix: ${opt:stackPrefix, 'keep-it-clean'}
   baseStack: ${opt:stackPrefix, 'keep-it-clean'}-${opt:stage, 'dev'}-base-infra
+  VpcStack: ${opt:vpc_stack}
 
 provider:
   name: aws
+  logs:
+    websocket: true
+  stage: ${opt:stage,'dev'}
+  stackName: ${opt:stackPrefix, 'keep-it-clean'}-${opt:stage, 'dev'}-web-backend
+  apiGateway:
+    minimumCompressionSize: 0
   runtime: nodejs12.x
-  lambdaHashingVersion: 20201221
+  memorySize: 512
+  timeout: 30
+  versionFunctions: false
+  iamManagedPolicies:
+    - arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
+    - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
+    - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+  vpc:
+    securityGroupIds:
+      - ${cf:${self:custom.baseStack}.VPCLambdaSecurityGroup}
+    subnetIds:
+      - ${cf:${self:custom.baseStack}.VpcLambdaPrivateSubnet}
+  tags:
+    OWNER: indrapranesh
+    DESCRIPTION: In the purpose of Web Backend
   environment:
     DB_DIALECT: mysql
     DB_PORT: 3306
@@ -25,10 +45,12 @@ provider:
     DATABASE: database_master
     DB_USERNAME: db_user
     DB_PASSWORD: testpass
-    USER_POOLID: ${cf:${self:service.name}.UserPoolId}
-    CLIENT_ID: ${cf:${self:service.name}.UserPoolClientId}
+    USER_POOLID: ${cf:${self:custom.baseStack}.UserPoolId}
+    CLIENT_ID: ${cf:${self:custom.baseStack}.UserPoolClientId}
 
 functions:
+
+  # User API
   
   create: 
     handler: src/api/user.create
@@ -38,3 +60,266 @@ functions:
           method: post
           cors: true
           integration: lambda
+        
+  getAllUsers: 
+    handler: src/api/user.getAllUsers
+    events:
+      - http:
+          path: api/users
+          method: get
+          cors: true
+          integration: lambda
+
+  getUserById: 
+    handler: src/api/user.getUserById
+    events:
+      - http:
+          path: api/user/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  firstLoginUpdate:
+    handler: src/api/user.firstLoginUpdate
+    events:
+      - http:
+          path: api/user/login/update/{userId}
+          method: patch
+          cors: true
+          integration: lambda
+
+
+  # Acheivement API
+
+  achievementShown:
+    handler: src/api/achievement.achievementShown
+    events:
+      - http:
+          path: api/achievement/{achievementId}
+          method: patch
+          cors: true
+          integration: lambda
+
+  getAllAchievements:
+    handler: src/api/achievement.getAllAchievements
+    events:
+      - http:
+          path: api/achievements
+          method: get
+          cors: true
+          integration: lambda
+
+  getUserAchievements:
+    handler: src/api/achievement.getUserAchievements
+    events:
+      - http:
+          path: api/achievements/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  addAchievements:
+    handler: src/api/achievement.addAchievements
+    events:
+      - http:
+          path: api/achievements/add/{userId}
+          method: post
+          cors: true
+          integration: lambda
+
+  # Session API
+
+  login:
+    handler: src/api/session.login
+    events:
+      - http:
+          path: api/login
+          method: post
+          cors: true
+          integration: lambda
+
+  signUp:
+    handler: src/api/session.signUp
+    events:
+      - http:
+          path: api/signup
+          method: post
+          cors: true
+          integration: lambda
+
+  changePassword:
+    handler: src/api/session.changePassword
+    events:
+      - http:
+          path: api/password/change
+          method: post
+          cors: true
+          integration: lambda
+
+  verifyUser:
+    handler: src/api/session.verifyUser
+    events:
+      - http:
+          path: api/user/verify
+          method: post
+          cors: true
+          integration: lambda
+  
+  refreshSession:
+    handler: src/api/session.refreshSession
+    events:
+      - http:
+          path: api/session/refresh
+          method: post
+          cors: true
+          integration: lambda
+
+  forgetPassword:
+    handler: src/api/session.forgetPassword
+    events:
+      - http:
+          path: api/password/forget
+          method: post
+          cors: true
+          integration: lambda
+
+  confirmForgotPassword:
+    handler: src/api/session.confirmForgotPassword
+    events:
+      - http:
+          path: api/password/reset
+          method: post
+          cors: true
+          integration: lambda
+
+
+  # Event API
+
+  createEvent:
+    handler: src/api/event.createEvent
+    events:
+      - http:
+          path: api/event
+          method: post
+          cors: true
+          integration: lambda
+
+  joinEvent:
+    handler: src/api/event.joinEvent
+    events:
+      - http:
+          path: api/event/join
+          method: post
+          cors: true
+          integration: lambda
+
+  getAllEvents:
+    handler: src/api/event.getAllEvents
+    events:
+      - http:
+          path: api/events/{state}
+          method: get
+          cors: true
+          integration: lambda
+
+  searchEvents:
+    handler: src/api/event.searchEvents
+    events:
+      - http:
+          path: api/events/search/{state}
+          method: get
+          cors: true
+          integration: lambda 
+
+  getEventTypes:
+    handler: src/api/event.getEventTypes
+    events:
+      - http:
+          path: api/event/types
+          method: get
+          cors: true
+          integration: lambda
+
+  getEventById:
+    handler: src/api/event.getEventById
+    events:
+      - http:
+          path: api/event/{eventId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getHostedEventsByUser:
+    handler: src/api/event.getHostedEventsByUser
+    events:
+      - http:
+          path: api/events/hosted/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getJoinedEventsByUser:
+    handler: src/api/event.getJoinedEventsByUser
+    events:
+      - http:
+          path: api/events/joined/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getParticipantsData:
+    handler: src/api/event.getParticipantsData
+    events:
+      - http:
+          path: api/event/{eventId}/participants
+          method: get
+          cors: true
+          integration: lambda
+
+  deleteEvent:
+    handler: src/api/event.deleteEvent
+    events:
+      - http:
+          path: api/event/{eventId}
+          method: delete
+          cors: true
+          integration: lambda
+
+  getEmissionCategories:
+    handler: src/api/carbon.getEmissionCategories
+    events:
+      - http:
+          path: api/carbon/categories
+          method: get
+          cors: true
+          integration: lambda
+
+  addUserCarbonEmission:
+    handler: src/api/carbon.addUserCarbonEmission
+    events:
+      - http:
+          path: api/carbon/emission/user/{userId}
+          method: post
+          cors: true
+          integration: lambda
+
+  getAllUserEmission:
+    handler: src/api/carbon.getAllUserEmission
+    events:
+      - http:
+          path: api/carbon/emission/user/{userId}
+          method: get
+          cors: true
+          integration: lambda
+
+  getLocalLaws:
+    handler: src/api/law.getLocalLaws
+    events:
+      - http:
+          path: api/laws
+          method: get
+          cors: true
+          integration: lambda
+
+resources:
+  - ${file(./serverless-assets/serverless-template.yml)}
